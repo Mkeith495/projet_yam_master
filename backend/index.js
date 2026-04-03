@@ -11,6 +11,25 @@ let games = [];
 let queue = [];
 const BOT_SOCKET_ID = "BOT";
 
+const cleanupGamesForSocketId = (socketId) => {
+  while (true) {
+    const gameIndex = GameService.utils.findGameIndexBySocketId(
+      games,
+      socketId,
+    );
+    if (gameIndex === -1) return;
+
+    const game = games[gameIndex];
+    try {
+      if (game && game._interval) {
+        clearInterval(game._interval);
+      }
+    } catch (e) {}
+
+    games.splice(gameIndex, 1);
+  }
+};
+
 // ------------------------------------
 // -------- EMITTER METHODS -----------
 // ------------------------------------
@@ -361,6 +380,8 @@ const createGame = (player1Socket, player2Socket) => {
     }
   }, 1000);
 
+  games[gameIndex]._interval = gameInterval;
+
   // remove intervals at deconnection
   player1Socket.on("disconnect", () => {
     clearInterval(gameInterval);
@@ -376,9 +397,7 @@ const newPlayerInQueue = (socket) => {
 
   // 'queue' management
   if (queue.length >= 2) {
-    const player1Socket = queue.shift();
-    const player2Socket = queue.shift();
-    createGame(player1Socket, player2Socket);
+    createGame(queue.shift(), queue.shift());
   } else {
     socket.emit("queue.added", GameService.send.forPlayer.viewQueueState());
   }
@@ -405,23 +424,12 @@ io.on("connection", (socket) => {
 
   socket.on("queue.join", () => {
     console.log(`[${socket.id}] new player in queue `);
+    cleanupGamesForSocketId(socket.id);
     newPlayerInQueue(socket);
   });
 
   socket.on("vsbot.start", () => {
-    const existingGameIndex = GameService.utils.findGameIndexBySocketId(
-      games,
-      socket.id,
-    );
-    if (existingGameIndex !== -1) {
-      return;
-    }
-
-    const queueIndex = queue.findIndex((s) => s.id === socket.id);
-    if (queueIndex !== -1) {
-      queue.splice(queueIndex, 1);
-    }
-
+    cleanupGamesForSocketId(socket.id);
     console.log(`[${socket.id}] start VsBot game`);
     createGameVsBot(socket);
   });
@@ -570,6 +578,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", (reason) => {
     console.log(`[${socket.id}] socket disconnected - ${reason}`);
+    cleanupGamesForSocketId(socket.id);
   });
 });
 

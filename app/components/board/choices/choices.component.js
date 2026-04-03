@@ -3,6 +3,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { SocketContext } from "../../../contexts/socket.context";
+import { audioManager } from "../../../audio/audio.manager";
 
 const Choices = () => {
   const socket = useContext(SocketContext);
@@ -24,6 +25,7 @@ const Choices = () => {
   const handleSelectChoice = (choiceId) => {
     if (canMakeChoice) {
       setIdSelectedChoice(choiceId);
+      audioManager.playSfx("combo_sfx");
       socket.emit("game.choices.selected", { choiceId });
     }
   };

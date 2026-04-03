@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { SocketContext } from "../contexts/socket.context";
 import Board from "../components/board/board.component";
+import { audioManager } from "../audio/audio.manager";
 
 export default function VsBotGameController({ navigation }) {
   const socket = useContext(SocketContext);
@@ -19,29 +20,68 @@ export default function VsBotGameController({ navigation }) {
     opponentScore: 0,
     opponentTokens: 12,
   });
+  const prevScoresRef = useRef({ playerScore: 0, opponentScore: 0 });
   const [gameOver, setGameOver] = useState(null);
 
   useEffect(() => {
     socket.emit("vsbot.start");
     setInGame(false);
 
+    audioManager.playBgm("queue_bgm");
+
     socket.on("game.start", (data) => {
       setInGame(data["inGame"]);
+      audioManager.stopBgm();
+      audioManager.playSfx("match_start_sfx");
+      audioManager.playBgm("ingame_bgm", { volume: 0.22 });
     });
 
     socket.on("game.scores.view-state", (data) => {
+      const nextPlayerScore =
+        typeof data?.playerScore === "number" ? data.playerScore : 0;
+      const nextOpponentScore =
+        typeof data?.opponentScore === "number" ? data.opponentScore : 0;
+
+      const prev = prevScoresRef.current;
+
+      if (
+        nextPlayerScore > prev.playerScore ||
+        nextOpponentScore > prev.opponentScore
+      ) {
+        audioManager.playSfx("combo_sfx");
+      }
+
+      prevScoresRef.current = {
+        playerScore: nextPlayerScore,
+        opponentScore: nextOpponentScore,
+      };
       setScores(data);
     });
 
     socket.on("game.end", (data) => {
       setGameOver(data);
       setInGame(false);
+
+      audioManager.stopBgm();
+
+      const hasWon = data?.winnerSocketId
+        ? data.winnerSocketId === socket.id
+        : false;
+      const isDraw =
+        typeof data?.player1Score === "number" &&
+        typeof data?.player2Score === "number" &&
+        data.player1Score === data.player2Score;
+
+      if (isDraw) audioManager.playBgm("draw_bgm");
+      else if (hasWon) audioManager.playBgm("win_bgm");
+      else audioManager.playBgm("lose_bgm");
     });
 
     return () => {
       socket.off("game.start");
       socket.off("game.scores.view-state");
       socket.off("game.end");
+      audioManager.stopBgm();
     };
   }, []);
 

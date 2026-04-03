@@ -1,10 +1,68 @@
 // app/screens/home.screen.js
 
-import React from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import React, { useCallback, useRef } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Animated,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useFocusEffect } from "@react-navigation/native";
+import { audioManager } from "../audio/audio.manager";
 
 export default function HomeScreen({ navigation }) {
+  const hasEnabledAudioRef = useRef(false);
+  const titlePulseAnim = useRef(new Animated.Value(0)).current;
+  const actionsFloatAnim = useRef(new Animated.Value(0)).current;
+
+  useFocusEffect(
+    useCallback(() => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(titlePulseAnim, {
+            toValue: 1,
+            duration: 1400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(titlePulseAnim, {
+            toValue: 0,
+            duration: 1400,
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(actionsFloatAnim, {
+            toValue: 1,
+            duration: 1800,
+            useNativeDriver: true,
+          }),
+          Animated.timing(actionsFloatAnim, {
+            toValue: 0,
+            duration: 1800,
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+
+      audioManager.playBgm("home_bgm");
+      return () => {
+        audioManager.stopBgm();
+      };
+    }, []),
+  );
+
+  const enableAudioIfNeeded = () => {
+    if (hasEnabledAudioRef.current) return;
+    hasEnabledAudioRef.current = true;
+    audioManager.playBgm("home_bgm");
+  };
+
   return (
     <LinearGradient
       colors={["#05060A", "#0B1020", "#05060A"]}
@@ -12,12 +70,46 @@ export default function HomeScreen({ navigation }) {
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
+      <Pressable
+        style={StyleSheet.absoluteFill}
+        onPress={enableAudioIfNeeded}
+      />
       <View style={styles.hero}>
-        <Text style={styles.title}>YAM MASTER</Text>
+        <Animated.Text
+          style={[
+            styles.title,
+            {
+              transform: [
+                {
+                  scale: titlePulseAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.03],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          YAM MASTER
+        </Animated.Text>
         <Text style={styles.subtitle}>Choisis ton mode de jeu</Text>
       </View>
 
-      <View style={styles.actions}>
+      <Animated.View
+        style={[
+          styles.actions,
+          {
+            transform: [
+              {
+                translateY: actionsFloatAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, -6],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
         <TouchableOpacity
           style={styles.buttonOuter}
           onPress={() => navigation.navigate("OnlineGameScreen")}
@@ -45,7 +137,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.buttonText}>Jouer contre le bot</Text>
           </LinearGradient>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </LinearGradient>
   );
 }

@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { SocketContext } from "../contexts/socket.context";
 import Board from "../components/board/board.component";
+import { audioManager } from "../audio/audio.manager";
 
 export default function OnlineGameController({ navigation }) {
   const socket = useContext(SocketContext);
@@ -25,6 +26,10 @@ export default function OnlineGameController({ navigation }) {
     opponentScore: 0,
     opponentTokens: 12,
   });
+  const [prevScores, setPrevScores] = useState({
+    playerScore: 0,
+    opponentScore: 0,
+  });
   const [gameOver, setGameOver] = useState(null);
 
   useEffect(() => {
@@ -32,6 +37,8 @@ export default function OnlineGameController({ navigation }) {
     socket.emit("queue.join");
     setInQueue(false);
     setInGame(false);
+
+    audioManager.playBgm("queue_bgm");
 
     socket.on("queue.added", (data) => {
       console.log("[listen][queue.added]:", data);
@@ -44,22 +51,56 @@ export default function OnlineGameController({ navigation }) {
       setInQueue(data["inQueue"]);
       setInGame(data["inGame"]);
       setIdOpponent(data["idOpponent"]);
+      audioManager.stopBgm();
+      audioManager.playSfx("match_start_sfx");
+      audioManager.playBgm("ingame_bgm", { volume: 0.22 });
     });
 
     socket.on("queue.left", (data) => {
       console.log("[listen][queue.left]:", data);
       setInQueue(data["inQueue"]);
       setInGame(data["inGame"]);
+      audioManager.stopBgm();
       navigation.navigate("HomeScreen");
     });
 
     socket.on("game.scores.view-state", (data) => {
+      const nextPlayerScore =
+        typeof data?.playerScore === "number" ? data.playerScore : 0;
+      const nextOpponentScore =
+        typeof data?.opponentScore === "number" ? data.opponentScore : 0;
+
+      if (
+        nextPlayerScore > prevScores.playerScore ||
+        nextOpponentScore > prevScores.opponentScore
+      ) {
+        audioManager.playSfx("combo_sfx");
+      }
+
+      setPrevScores({
+        playerScore: nextPlayerScore,
+        opponentScore: nextOpponentScore,
+      });
       setScores(data);
     });
 
     socket.on("game.end", (data) => {
       setGameOver(data);
       setInGame(false); // On arrête le rendu du Board pour afficher le résumé
+
+      audioManager.stopBgm();
+
+      const hasWon = data?.winnerSocketId
+        ? data.winnerSocketId === socket.id
+        : false;
+      const isDraw =
+        typeof data?.player1Score === "number" &&
+        typeof data?.player2Score === "number" &&
+        data.player1Score === data.player2Score;
+
+      if (isDraw) audioManager.playBgm("draw_bgm");
+      else if (hasWon) audioManager.playBgm("win_bgm");
+      else audioManager.playBgm("lose_bgm");
     });
 
     // N'oubliez pas de nettoyer les écouteurs dans le return de useEffect
@@ -69,6 +110,7 @@ export default function OnlineGameController({ navigation }) {
       socket.off("queue.left");
       socket.off("game.scores.view-state");
       socket.off("game.end");
+      audioManager.stopBgm();
     };
   }, []);
 

@@ -27,15 +27,21 @@ export default function OnlineGameScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#05060A",
     alignItems: "center",
     justifyContent: "center",
+    width: "100%",
+    height: "100%",
   },
   paragraph: {
     fontSize: 16,
+    color: "#EAF6FF",
+    fontFamily: "Orbitron_700Bold",
   },
   footnote: {
     fontSize: 12,
     marginTop: 8,
+    color: "#BFD4FF",
+    fontFamily: "Orbitron_400Regular",
   },
 });

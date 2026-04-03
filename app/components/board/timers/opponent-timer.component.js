@@ -14,7 +14,7 @@ const OpponentTimer = () => {
 
   return (
     <View style={styles.opponentTimerContainer}>
-      <Text>Timer: {opponentTimer}</Text>
+      <Text style={styles.timerText}>Timer: {opponentTimer}</Text>
     </View>
   );
 };
@@ -24,6 +24,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  timerText: {
+    fontFamily: "Orbitron_400Regular",
+    fontSize: 11,
+    color: "#EAF6FF",
+    textShadowColor: "rgba(0, 229, 255, 0.45)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
   },
 });
 

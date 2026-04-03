@@ -1,19 +1,30 @@
 // ./App.js
 
-import React from 'react';
-import { LogBox } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import HomeScreen from './app/screens/home.screen';
-import { SocketContext, socket } from './app/contexts/socket.context';
-import OnlineGameScreen from './app/screens/online-game.screen';
-import VsBotGameScreen from './app/screens/vs-bot-game.screen';
-
+import React from "react";
+import { LogBox } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import HomeScreen from "./app/screens/home.screen";
+import { SocketContext, socket } from "./app/contexts/socket.context";
+import OnlineGameScreen from "./app/screens/online-game.screen";
+import VsBotGameScreen from "./app/screens/vs-bot-game.screen";
+import {
+  useFonts,
+  Orbitron_400Regular,
+  Orbitron_700Bold,
+} from "@expo-google-fonts/orbitron";
 
 const Stack = createStackNavigator();
 LogBox.ignoreAllLogs(true);
 
 function App() {
+  const [fontsLoaded] = useFonts({
+    Orbitron_400Regular,
+    Orbitron_700Bold,
+  });
+
+  if (!fontsLoaded) return null;
+
   return (
     <SocketContext.Provider value={socket}>
       <NavigationContainer>

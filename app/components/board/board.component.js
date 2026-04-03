@@ -2,6 +2,7 @@
 
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import PlayerTimer from "./timers/player-timer.component";
 import OpponentTimer from "./timers/opponent-timer.component";
 import PlayerDeck from "./decks/player-deck.component";
@@ -11,32 +12,42 @@ import Grid from "./grid/grid.component";
 
 const OpponentInfos = ({ tokens }) => {
   return (
-    <View style={styles.opponentInfosContainer}>
-      <Text>Opponent tokens: {tokens}</Text>
-    </View>
+    <LinearGradient
+      colors={["#0B1020", "#111B33"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.opponentInfosContainer}
+    >
+      <Text style={styles.hudText}>Adversaire: {tokens} tokens</Text>
+    </LinearGradient>
   );
 };
 
 const OpponentScore = ({ score }) => {
   return (
     <View style={styles.opponentScoreContainer}>
-      <Text>Score: {score}</Text>
+      <Text style={styles.hudTextSmall}>Score: {score}</Text>
     </View>
   );
 };
 
 const PlayerInfos = ({ tokens }) => {
   return (
-    <View style={styles.playerInfosContainer}>
-      <Text>Your tokens: {tokens}</Text>
-    </View>
+    <LinearGradient
+      colors={["#0B1020", "#111B33"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.playerInfosContainer}
+    >
+      <Text style={styles.hudText}>Vous: {tokens} tokens</Text>
+    </LinearGradient>
   );
 };
 
 const PlayerScore = ({ score }) => {
   return (
     <View style={styles.playerScoreContainer}>
-      <Text>Score: {score}</Text>
+      <Text style={styles.hudTextSmall}>Score: {score}</Text>
     </View>
   );
 };
@@ -80,7 +91,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     height: "100%",
-    backgroundColor: "#fff",
+    maxWidth: 1200,
+    alignSelf: "center",
+    backgroundColor: "#05060A",
   },
   row: {
     flexDirection: "row",
@@ -103,15 +116,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRightWidth: 1,
-    borderColor: "black",
-    backgroundColor: "lightgrey",
+    borderColor: "rgba(0, 229, 255, 0.35)",
   },
   opponentTimerScoreContainer: {
     flex: 3,
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "lightgrey",
+    backgroundColor: "#0B1020",
+    borderLeftWidth: 1,
+    borderLeftColor: "rgba(0, 229, 255, 0.35)",
   },
   opponentScoreContainer: {
     flex: 1,
@@ -137,21 +151,38 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRightWidth: 1,
-    borderColor: "black",
-    backgroundColor: "lightgrey",
+    borderColor: "rgba(0, 229, 255, 0.35)",
   },
   playerTimerScoreContainer: {
     flex: 3,
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "lightgrey",
+    backgroundColor: "#0B1020",
+    borderLeftWidth: 1,
+    borderLeftColor: "rgba(0, 229, 255, 0.35)",
   },
   playerScoreContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "lightgrey",
+    backgroundColor: "transparent",
+  },
+  hudText: {
+    fontFamily: "Orbitron_700Bold",
+    fontSize: 12,
+    color: "#EAF6FF",
+    textShadowColor: "rgba(0, 229, 255, 0.55)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  hudTextSmall: {
+    fontFamily: "Orbitron_400Regular",
+    fontSize: 11,
+    color: "#BFD4FF",
+    textShadowColor: "rgba(142, 43, 255, 0.45)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
   },
 });
 

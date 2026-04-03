@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "column",
+    backgroundColor: "#0B1020",
   },
   row: {
     flexDirection: "row",
@@ -102,13 +103,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "black",
+    borderColor: "rgba(234, 246, 255, 0.22)",
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
   },
   cellText: {
     fontSize: 11,
-    color: "black",
+    color: "#EAF6FF",
     fontWeight: "bold",
     textAlign: "center",
+    textShadowColor: "rgba(0, 229, 255, 0.25)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 4,
   },
   playerOwnedCell: {
     backgroundColor: "lightgreen",

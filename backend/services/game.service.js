@@ -209,7 +209,7 @@ const GameService = {
               ? gameState.player2Tokens
               : gameState.player1Tokens,
         };
-      }
+      },
     },
   },
 
@@ -382,15 +382,36 @@ const GameService = {
         score += checkLine(column);
       }
 
-      // Diagonales (principale et secondaire)
-      const diag1 = [],
-        diag2 = [];
-      for (let i = 0; i < size; i++) {
-        diag1.push(grid[i][i]);
-        diag2.push(grid[i][size - 1 - i]);
+      // Diagonales (toutes)
+      for (let startCol = 0; startCol < size; startCol++) {
+        const diag = [];
+        for (let r = 0, c = startCol; r < size && c < size; r++, c++) {
+          diag.push(grid[r][c]);
+        }
+        if (diag.length >= 3) score += checkLine(diag);
       }
-      score += checkLine(diag1);
-      score += checkLine(diag2);
+      for (let startRow = 1; startRow < size; startRow++) {
+        const diag = [];
+        for (let r = startRow, c = 0; r < size && c < size; r++, c++) {
+          diag.push(grid[r][c]);
+        }
+        if (diag.length >= 3) score += checkLine(diag);
+      }
+
+      for (let startCol = 0; startCol < size; startCol++) {
+        const diag = [];
+        for (let r = 0, c = startCol; r < size && c >= 0; r++, c--) {
+          diag.push(grid[r][c]);
+        }
+        if (diag.length >= 3) score += checkLine(diag);
+      }
+      for (let startRow = 1; startRow < size; startRow++) {
+        const diag = [];
+        for (let r = startRow, c = size - 1; r < size && c >= 0; r++, c--) {
+          diag.push(grid[r][c]);
+        }
+        if (diag.length >= 3) score += checkLine(diag);
+      }
 
       return score;
     },
@@ -417,13 +438,38 @@ const GameService = {
         if (isFive(grid[i])) return true; // Ligne
         if (isFive(grid.map((row) => row[i]))) return true; // Colonne
       }
-      const diag1 = [],
-        diag2 = [];
-      for (let i = 0; i < size; i++) {
-        diag1.push(grid[i][i]);
-        diag2.push(grid[i][size - 1 - i]);
+
+      for (let startCol = 0; startCol < size; startCol++) {
+        const diag = [];
+        for (let r = 0, c = startCol; r < size && c < size; r++, c++) {
+          diag.push(grid[r][c]);
+        }
+        if (diag.length === 5 && isFive(diag)) return true;
       }
-      return isFive(diag1) || isFive(diag2);
+      for (let startRow = 1; startRow < size; startRow++) {
+        const diag = [];
+        for (let r = startRow, c = 0; r < size && c < size; r++, c++) {
+          diag.push(grid[r][c]);
+        }
+        if (diag.length === 5 && isFive(diag)) return true;
+      }
+
+      for (let startCol = 0; startCol < size; startCol++) {
+        const diag = [];
+        for (let r = 0, c = startCol; r < size && c >= 0; r++, c--) {
+          diag.push(grid[r][c]);
+        }
+        if (diag.length === 5 && isFive(diag)) return true;
+      }
+      for (let startRow = 1; startRow < size; startRow++) {
+        const diag = [];
+        for (let r = startRow, c = size - 1; r < size && c >= 0; r++, c--) {
+          diag.push(grid[r][c]);
+        }
+        if (diag.length === 5 && isFive(diag)) return true;
+      }
+
+      return false;
     },
 
     updateGridAfterSelectingChoice: (idSelectedChoice, grid) => {

@@ -1,5 +1,11 @@
 import React, { useEffect, useState, useContext } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  ActivityIndicator,
+} from "react-native";
 import { SocketContext } from "../contexts/socket.context";
 import Board from "../components/board/board.component";
 
@@ -56,9 +62,11 @@ export default function VsBotGameController({ navigation }) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Partie Terminée !</Text>
-        <Text>{hasWon ? "Vous avez gagné !" : "Vous avez perdu..."}</Text>
-        <Text>Raison : {gameOver.reason}</Text>
-        <Text>
+        <Text style={styles.paragraph}>
+          {hasWon ? "Vous avez gagné !" : "Vous avez perdu..."}
+        </Text>
+        <Text style={styles.footnote}>Raison : {gameOver.reason}</Text>
+        <Text style={styles.footnote}>
           Votre score : {finalPlayerScore} | Bot : {finalBotScore}
         </Text>
         <Button
@@ -72,7 +80,10 @@ export default function VsBotGameController({ navigation }) {
   return (
     <View style={styles.container}>
       {!inGame && (
-        <Text style={styles.paragraph}>Démarrage de la partie VsBot...</Text>
+        <>
+          <ActivityIndicator size="large" color="#00E5FF" />
+          <Text style={styles.paragraph}>Démarrage de la partie VsBot...</Text>
+        </>
       )}
 
       {inGame && <Board scores={scores} />}
@@ -83,7 +94,7 @@ export default function VsBotGameController({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#05060A",
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
@@ -91,10 +102,26 @@ const styles = StyleSheet.create({
   },
   paragraph: {
     fontSize: 16,
+    color: "#EAF6FF",
+    fontFamily: "Orbitron_700Bold",
+    marginTop: 12,
+  },
+  footnote: {
+    fontSize: 12,
+    marginTop: 8,
+    color: "#BFD4FF",
+    fontFamily: "Orbitron_400Regular",
+    textAlign: "center",
+    paddingHorizontal: 16,
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
+    color: "#EAF6FF",
+    fontFamily: "Orbitron_700Bold",
+    textShadowColor: "rgba(0, 229, 255, 0.4)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
   },
 });
